@@ -22,6 +22,15 @@ Or install it yourself as:
 
 ```ruby
 expect(tracer).to have_traces(n)
+expect(tracer).to have_span(optional operation_name)
+                  .in_progress
+                  .started # alias for #in_progress
+                  .finished
+                  .with_tags(optional hash of tags)
+                  .with_logs
+                  .with_log(optional fields)
+                  .with_baggage(optional baggage to match)
+                  .child_of(operation_name or span or context)
 ```
 
 ## Usage
