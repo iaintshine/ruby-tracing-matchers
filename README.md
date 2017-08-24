@@ -22,6 +22,8 @@ Or install it yourself as:
 
 ```ruby
 expect(tracer).to have_traces(n)
+                  .started
+                  .finished
 expect(tracer).to have_span(optional operation_name)
                   .in_progress
                   .started # alias for #in_progress
