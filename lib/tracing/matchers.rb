@@ -102,7 +102,7 @@ module Tracing
     #                     .child_of("Authentication")
     #
     # @param [String] operation_name operation name of a searched span
-    # @return [HaveTraces]
+    # @return [HaveSpan]
     #
     # @see HaveSpan#in_progress
     # @see HaveSpan#started
