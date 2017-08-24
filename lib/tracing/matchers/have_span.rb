@@ -18,11 +18,7 @@ module Tracing
         self
       end
 
-      def with_logs
-        self
-      end
-
-      def with_log(**fields)
+      def with_logs(**fields)
         self
       end
 
@@ -30,7 +26,7 @@ module Tracing
         self
       end
 
-      def child_of(parent)
+      def child_of(parent = anything)
         self
       end
       alias :with_parent :child_of

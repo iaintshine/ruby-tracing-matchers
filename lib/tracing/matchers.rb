@@ -34,8 +34,84 @@ module Tracing
       Tracing::Matchers::HaveTraces.new(n)
     end
 
-    # @param [String] operation_name
-    # @return [HaveSpan]
+    # The `have_span` matcher tests that the tracer traced a span matching a criteria.
+    #
+    # @example
+    #
+    #   # Behaves very similar to have_traces without any arguments.
+    #   expect(tracer).to have_span
+    #
+    #   # Passes if the tracer traced span with the operation name "User Load".
+    #   expect(tracer).to have_span("User Load")
+    #
+    #   # Passes if the tracer traced span with the operation name "User Load"
+    #   # which is still in progress.
+    #   expect(tracer).to have_span("User Load").in_progress
+    #
+    #   # Same as above
+    #   expect(tracer).to have_span("User Load").started
+    #
+    #   # Passes if the tracer traced span with the operation name "User Load"
+    #   # which has finished.
+    #   expect(tracer).to have_span("User Load").finished
+    #
+    #   # Passes if the tracer traced any span which has any tag
+    #   expect(tracer).to have_span.with_tags
+    #
+    #   # Passes if the tracer traced span with the operation name "User Load"
+    #   # and which has any tag
+    #   expect(tracer).to have_span("User Load").with_tags
+    #
+    #   # Passes if the tracer traced span with the operation name "User Load"
+    #   # and which has a tag 'component' => 'ActiveRecord'.
+    #   expect(tracer).to have_span("User Load").with_tags('component' => 'ActiveRecord')
+    #
+    #   # Passes if the tracer traced any span which has any log entry
+    #   expect(tracer).to have_span.with_logs
+    #
+    #   # Passes if the tracer traced span with the operation name "User Load"
+    #   # and which has a log entry with event 'error'.
+    #   expect(tracer).to have_span("User Load").with_logs(event: 'error')
+    #
+    #   # Passes if the tracer traced any span which has any entry in a baggage
+    #   expect(tracer).to have_span.with_baggae
+    #
+    #   # Passes if the tracer traced span with the operation name "User Load"
+    #   # and which has a baggage with 'account_id' => '1'
+    #   expect(tracer).to have_span("User Load").with_baggae('account_id' => '1')
+    #
+    #   # Passes if the tracer traced any span which has a parent
+    #   expect(tracer).to have_span.with_parent
+    #
+    #   # Passes if the tracer traced any span which has root_span as a parent
+    #   expect(tracer).to have_span.child_of(root_span)
+    #
+    #   # Passes if the tracer traced span with the operation name "User Load"
+    #   # and which has a parent span with operation name "Authentication".
+    #   expect(tracer).to have_span("User Load").child_of("Authentication")
+    #
+    #   # Passes if the tracer traced span with the operation name "User Load"
+    #   # which has a tag 'component' => 'ActiveRecord',
+    #   # has any log entry,
+    #   # has a baggage with 'account_id' => '1',
+    #   # and is child of a span with operation name "Authentication".
+    #   expect(tracer).to have_span("User Load")
+    #                     .with_tags('component' => 'ActiveRecord')
+    #                     .with_logs
+    #                     .with_baggage('account_id' => '1')
+    #                     .child_of("Authentication")
+    #
+    # @param [String] operation_name operation name of a searched span
+    # @return [HaveTraces]
+    #
+    # @see HaveSpan#in_progress
+    # @see HaveSpan#started
+    # @see HaveSpan#finished
+    # @see HaveSpan#with_tags
+    # @see HaveSpan#with_logs
+    # @see HaveSpan#with_baggage
+    # @see HaveSpan#with_parent
+    # @see HaveSpan#child_of
     def have_span(operation_name = anything)
       Tracing::Matchers::HaveSpan.new(operation_name)
     end
