@@ -1,5 +1,8 @@
 require "bundler/setup"
+require "test/tracer"
 require "tracing/matchers"
+
+Dir['./spec/support/**/*'].each { |f| require f }
 
 RSpec.configure do |config|
   # Enable flags like --only-failures and --next-failure
