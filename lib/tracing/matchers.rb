@@ -1,9 +1,40 @@
 require "tracing/matchers/version"
+require "tracing/matchers/have_traces"
 require "tracing/matchers/have_spans"
 require "tracing/matchers/have_span"
 
 module Tracing
   module Matchers
+    # The `have_traces` matcher tests that the tracer traced any or a specific
+    # number of **traces**.
+    #
+    # @example
+    #
+    #   # Passes if tracer traced any trace
+    #   expect(tracer).to have_spans
+    #
+    #   # Passes if tracer traced exactly 10 distinct traces
+    #   expect(tracer).to have_spans(10)
+    #
+    #   # Passes if tracer started any trace
+    #   expect(tracer).to have_spans.started
+    #
+    #   # Passes if tracer has any finished traces
+    #   expect(tracer).to have_spans.finished
+    #
+    # @note It's possible to chain `started` and `finished` at the same time.
+    #  Expect that only the last method will be applied e.g. `have_spans.finished.started`
+    #  will result in application of `started`.
+    #
+    # @param [Fixnum] n expected number of distinct traces
+    # @return [HaveTraces]
+    #
+    # @see HaveTraces#started
+    # @see HaveTraces#finished
+    def have_traces(n = anything)
+      Tracing::Matchers::HaveTraces.new(n)
+    end
+
     # The `have_spans` matcher tests that the tracer traced any or a specific
     # number of spans.
     #

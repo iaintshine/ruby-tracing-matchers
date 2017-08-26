@@ -21,6 +21,9 @@ Or install it yourself as:
 ## Available matchers
 
 ```ruby
+expect(tracer).to have_traces(n)
+                  .started
+                  .finished
 expect(tracer).to have_spans(n)
                   .started
                   .finished
@@ -35,9 +38,33 @@ expect(tracer).to have_span(optional operation_name)
                   .child_of(operation_name or span or context)
 ```
 
+Detailed documentation and usage examples can be found in [matchers.rb](https://github.com/iaintshine/ruby-tracing-matchers/blob/master/lib/tracing/matchers.rb) file.
+
 ## Usage
 
 High-level test examples.
+
+```ruby
+describe "traced code" do
+  context "when we expect no traces" do
+    it "does not have any traces" do
+      expect(tracer).not_to have_traces
+    end
+  end
+
+  context "when we expect traces to be present" do
+    it "does have some traces started" do
+      expect(tracer).to have_traces
+    end
+  end
+
+  context "when we expect exactly N traces" do
+    it "has N traces recorded" do
+      expect(tracer).to have_traces(N)
+    end
+  end
+end
+```
 
 ```ruby
 describe "traced code" do
