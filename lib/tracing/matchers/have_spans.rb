@@ -32,7 +32,7 @@ module Tracing
       def description
         desc = "have "
         desc << "exactly #{@expected} " if exactly?
-        desc << "traces #{@state}"
+        desc << "spans #{@state}"
         desc.strip
       end
 
