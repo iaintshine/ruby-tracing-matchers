@@ -106,28 +106,28 @@ RSpec.describe Tracing::Matchers::HaveSpans do
 
     it "generates description" do
       expect(tracer).to have_spans
-      expect(RSpec::Matchers.generated_description).to eq "should have traces"
+      expect(RSpec::Matchers.generated_description).to eq "should have spans"
     end
 
     it "generates description with started" do
       expect(tracer).to have_spans.started
-      expect(RSpec::Matchers.generated_description).to eq "should have traces started"
+      expect(RSpec::Matchers.generated_description).to eq "should have spans started"
     end
 
     it "generates description with finished" do
       expect(tracer).to have_spans.finished
-      expect(RSpec::Matchers.generated_description).to eq "should have traces finished"
+      expect(RSpec::Matchers.generated_description).to eq "should have spans finished"
     end
 
     it "generates description with N spans" do
       expect(tracer).to have_spans(1)
-      expect(RSpec::Matchers.generated_description).to eq "should have exactly 1 traces"
+      expect(RSpec::Matchers.generated_description).to eq "should have exactly 1 spans"
 
       expect(tracer).to have_spans(1).started
-      expect(RSpec::Matchers.generated_description).to eq "should have exactly 1 traces started"
+      expect(RSpec::Matchers.generated_description).to eq "should have exactly 1 spans started"
 
       expect(tracer).to have_spans(1).finished
-      expect(RSpec::Matchers.generated_description).to eq "should have exactly 1 traces finished"
+      expect(RSpec::Matchers.generated_description).to eq "should have exactly 1 spans finished"
     end
   end
 end

@@ -1,7 +1,7 @@
 module Tracing
   module Matchers
     # @private
-    class HaveSpans
+    class HaveTraces
       def initialize(n)
         @expected = n
       end
@@ -21,10 +21,10 @@ module Tracing
         @subject = tracer
 
         if exactly?
-          @actual = spans.size
+          @actual = traces.size
           @actual == @expected
         else
-          spans.any?
+          traces.any?
         end
       end
 
@@ -32,19 +32,19 @@ module Tracing
       def description
         desc = "have "
         desc << "exactly #{@expected} " if exactly?
-        desc << "spans #{@state}"
+        desc << "traces #{@state}"
         desc.strip
       end
 
       # @return [String]
       def failure_message
         if exactly?
-          message = "expected #{@expected} spans"
+          message = "expected #{@expected} traces"
           message << " #{@state}" if @state
           message << ", got #{@actual}"
           message
         else
-          "expected any span #{@state}".strip
+          "expected any trace #{@state}".strip
         end
       end
       alias :failure_message_for_should :failure_message
@@ -52,12 +52,12 @@ module Tracing
       # @return [String]
       def failure_message_when_negated
         if exactly?
-          message = "did not expect #{@expected} spans"
+          message = "did not expect #{@expected} traces"
           message << " #{@state}" if @state
           message << ", got #{@actual}"
           message
         else
-          "did not expect spans #{@state}".strip
+          "did not expect traces #{@state}".strip
         end
       end
       alias :failure_message_for_should_not :failure_message_when_negated
@@ -68,12 +68,21 @@ module Tracing
         @state || :started
       end
 
-      def spans
-        state == :finished ? @subject.finished_spans : @subject.spans
-      end
-
       def exactly?
         @expected.is_a?(Fixnum)
+      end
+
+      def traces
+        @subject.spans
+          .group_by { |span| span.context.trace_id }
+          .map { |trace_id, spans| Trace.new(trace_id, spans) }
+          .select { |trace| @state == :finished ? trace.finished? : true }
+      end
+
+      class Trace < Struct.new(:trace_id, :spans)
+        def finished?
+          spans.all? { |span| !span.in_progress? }
+        end
       end
     end
   end
