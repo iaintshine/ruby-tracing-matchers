@@ -1,7 +1,7 @@
 module Tracing
   module Matchers
     # @private
-    class HaveTraces
+    class HaveSpans
       def initialize(n)
         @expected = n
       end
@@ -21,10 +21,10 @@ module Tracing
         @subject = tracer
 
         if exactly?
-          @actual = traces.size
+          @actual = spans.size
           @actual == @expected
         else
-          traces.any?
+          spans.any?
         end
       end
 
@@ -68,7 +68,7 @@ module Tracing
         @state || :started
       end
 
-      def traces
+      def spans
         state == :finished ? @subject.finished_spans : @subject.spans
       end
 
