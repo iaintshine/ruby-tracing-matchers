@@ -21,7 +21,7 @@ Or install it yourself as:
 ## Available matchers
 
 ```ruby
-expect(tracer).to have_traces(n)
+expect(tracer).to have_spans(n)
                   .started
                   .finished
 expect(tracer).to have_span(optional operation_name)
@@ -41,21 +41,21 @@ High-level test examples.
 
 ```ruby
 describe "traced code" do
-  context "when we expect no traces" do
-    it "does not have any traces" do
-      expect(tracer).not_to have_traces
+  context "when we expect no spans" do
+    it "does not have any spans" do
+      expect(tracer).not_to have_spans
     end
   end
 
-  context "when we expect traces to be present" do
-    it "does have some traces started" do
-      expect(tracer).to have_traces
+  context "when we expect spans to be present" do
+    it "does have some spans started" do
+      expect(tracer).to have_spans
     end
   end
 
-  context "when we expect exactly N traces" do
-    it "has N traces recorded" do
-      expect(tracer).to have_traces(N)
+  context "when we expect exactly N spans" do
+    it "has N spans recorded" do
+      expect(tracer).to have_spans(N)
     end
   end
 end
