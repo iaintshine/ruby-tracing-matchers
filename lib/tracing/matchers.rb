@@ -37,7 +37,7 @@ module Tracing
     end
 
     # The `have_spans` matcher tests that the tracer traced any or a specific
-    # number of spans.
+    # number of **spans**.
     #
     # @example
     #
