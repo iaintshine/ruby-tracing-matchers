@@ -103,6 +103,7 @@ describe "traced code" do
 
     it "does include standard OT tags" do
       expect(tracer).to have_span.with_tags('component' => 'ActiveRecord')
+      expect(span).to have_tag('component', 'ActiveRecord')
     end
 
     it "does not have any log entries" do
