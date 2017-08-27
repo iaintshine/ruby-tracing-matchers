@@ -43,6 +43,8 @@ expect(span).to have_log
 expect(span).to have_logs
 expect(span).to have_baggage
 expect(span).to have_baggage_item
+expect(span).to have_parent
+expect(span).to be_child_of
 ```
 
 Detailed documentation and usage examples can be found in [matchers.rb](https://github.com/iaintshine/ruby-tracing-matchers/blob/master/lib/tracing/matchers.rb) file.
@@ -150,6 +152,7 @@ describe "traced code" do
   context "when a new span was started as child" do
     it "has a prent" do
       expect(tracer).to have_span("child span").child_of("root span")
+      expect(span).to be_child_of("root span")
     end
   end
 end

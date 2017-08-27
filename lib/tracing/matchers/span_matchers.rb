@@ -1,6 +1,7 @@
 require "tracing/matchers/span/have_tag"
 require "tracing/matchers/span/have_log"
 require "tracing/matchers/span/have_baggage"
+require "tracing/matchers/span/be_child_of"
 
 module Tracing
   module Matchers
@@ -50,5 +51,22 @@ module Tracing
       Tracing::Matchers::Span::HaveBaggage.new(*args)
     end
     alias :have_baggage_item :have_baggage
+
+    # The `be_child_of` matcher tests that the span/span context is a child of some other span/span context.
+    # @example
+    #
+    #   # Passes if span is a child of any span
+    #   expect(span).to have_parent
+    #
+    #   # Passes if span is a child of a specific span context
+    #   expect(span).to be_child_of("parent operation")
+    #   expect(span).to be_child_of(parent_span)
+    #   expect(span).to be_child_of(parent_span_context)
+    #
+    # @return [HaveBaggage]
+    def be_child_of(parent = :any)
+      Tracing::Matchers::Span::BeChildOf.new(parent)
+    end
+    alias :have_parent :be_child_of
   end
 end
