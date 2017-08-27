@@ -1,4 +1,5 @@
 require "tracing/matchers/span/have_tag"
+require "tracing/matchers/span/have_log"
 require "tracing/matchers/span/have_baggage"
 
 module Tracing
@@ -18,6 +19,21 @@ module Tracing
       Tracing::Matchers::Span::HaveTag.new(*args)
     end
     alias :have_tags :have_tag
+
+    # The `have_log` matcher tests that the span includes a tag.
+    # @example
+    #
+    #   # Passes if span have any log
+    #   expect(span).to have_log
+    #
+    #   # Passes if span includes a log entry with event: "error"
+    #   expect(span).to have_log(event: "error")
+    #
+    # @return [HaveTag]
+    def have_log(**fields)
+      Tracing::Matchers::Span::HaveLog.new(**fields)
+    end
+    alias :have_logs :have_log
 
     # The `have_baggage` matcher tests that the span/span context includes baggage.
     # @example

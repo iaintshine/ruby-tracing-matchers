@@ -39,6 +39,8 @@ expect(tracer).to have_span(optional operation_name)
 
 expect(span).to have_tag
 expect(span).to have_tags
+expect(span).to have_log
+expect(span).to have_logs
 expect(span).to have_baggage
 expect(span).to have_baggage_item
 ```
@@ -124,10 +126,12 @@ describe "traced code" do
   context "when an event was logged" do
     it "does have some log entries recorded" do
       expect(tracer).to have_span.with_logs
+      expect(span).to have_log 
     end
 
     it "includes all the event attributes" do
       expect(tracer).to have_span.with_log(event: "exceptional message", severity: Logger::ERROR)
+      expect(span).to have_log(event: "exceptional message", severity: Logger::ERROR)
     end
   end
 
