@@ -1,21 +1,28 @@
 require "spec_helper"
 
 RSpec.describe Tracing::Matchers::HaveSpans do
+  let(:in_progress) { "in progress" }
+  let(:finished) { "finished" }
+  let(:parent) { "Parent Operation Name" }
+  let(:child) { "Child Operation Name" }
   let(:tracer) { Test::Tracer.new }
+
+  def prepare_environment
+    tracer.start_span(in_progress)
+    tracer.start_span(finished)
+
+    parent_span = tracer.start_span(parent)
+      span = tracer.start_span(child, child_of: parent_span)
+      span.set_tag("tag", "value")
+      span.set_baggage_item("baggage_item", "value")
+      span.log(event: "test", field1: "value")
+      span.finish
+    parent_span.finish
+  end
 
   describe "success cases" do
     before do
-      tracer.start_span("test")
-      tracer.start_span("in progress")
-      tracer.start_span("finished").finish
-      root = tracer.start_span("root")
-      tracer.start_span("child", child_of: root)
-
-      span = tracer.start_span("rich", child_of: root)
-      span.set_tag("tag", "value")
-      span.set_baggage_item("baggage_item", "value")
-      span.log(event: "test", "field1" => "value")
-      span.finish
+      prepare_environment
     end
 
     it "passes if general conditions are met" do
@@ -23,35 +30,41 @@ RSpec.describe Tracing::Matchers::HaveSpans do
       expect(tracer).to have_span.in_progress
       expect(tracer).to have_span.started
       expect(tracer).to have_span.finished
+      expect(tracer).to have_span.with_tag
       expect(tracer).to have_span.with_tags
+      expect(tracer).to have_span.with_log
       expect(tracer).to have_span.with_logs
       expect(tracer).to have_span.with_baggage
       expect(tracer).to have_span.with_parent
     end
 
     it "passes if named span conditions are met" do
-      expect(tracer).to have_span("test")
-      expect(tracer).to have_span("in progress").in_progress
-      expect(tracer).to have_span("in progress").started
-      expect(tracer).to have_span("finished").finished
-      expect(tracer).to have_span("rich").with_tags
-      expect(tracer).to have_span("rich").with_logs
-      expect(tracer).to have_span("rich").with_baggage
-      expect(tracer).to have_span("child").with_parent
+      expect(tracer).to have_span(in_progress)
+      expect(tracer).to have_span(in_progress).in_progress
+      expect(tracer).to have_span(in_progress).started
+      expect(tracer).to have_span(finished).finished
+      expect(tracer).to have_span(child).with_tags
+      expect(tracer).to have_span(child).with_logs
+      expect(tracer).to have_span(child).with_baggage
+      expect(tracer).to have_span(child).with_parent
     end
 
     it "passes if named span specific conditions are met" do
-      expect(tracer).to have_span("rich").with_tags("tag" => "value")
-      expect(tracer).to have_span("rich").with_logs(event: "test", "field1" => "value")
-      expect(tracer).to have_span("rich").with_baggage("baggage_item" => "value")
-      expect(tracer).to have_span("child").child_of("root")
+      expect(tracer).to have_span(child).with_tag("tag", "value")
+      expect(tracer).to have_span(child).with_tags("tag" => "value")
+      expect(tracer).to have_span(child).with_log(event: "test", field1: "value")
+      expect(tracer).to have_span(child).with_logs(event: "test", field1: "value")
+      expect(tracer).to have_span(child).with_baggage("baggage_item", "value")
+      expect(tracer).to have_span(child).with_baggage("baggage_item" => "value")
+      expect(tracer).to have_span(child).child_of(parent)
     end
 
     it "passes if multiple conditions are met" do
-      expect(tracer).to have_span("rich")
+      expect(tracer).to have_span(child)
+        .with_tag("tag", "value")
+        .with_baggage("baggage_item", "value")
+        .child_of(parent)
         .finished
-        .with_tags("tag" => "value")
-        .child_of("root")
     end
   end
 
@@ -72,14 +85,22 @@ RSpec.describe Tracing::Matchers::HaveSpans do
 
     it "fails if there is no span with an operation name" do
       expect {
-        expect(tracer).to have_span("Child Operation Name")
-      }.to fail_with("expected 'Child Operation Name' span")
+        expect(tracer).to have_span(child)
+      }.to fail_with('expected "Child Operation Name" span')
     end
 
     it "fails if general conditions are not met" do
       expect {
+        expect(tracer).to have_span.with_tag
+      }.to fail_with("expected any span with tags")
+
+      expect {
         expect(tracer).to have_span.with_tags
       }.to fail_with("expected any span with tags")
+
+      expect {
+        expect(tracer).to have_span.with_logs
+      }.to fail_with("expected any span with log")
 
       expect {
         expect(tracer).to have_span.with_logs
@@ -96,40 +117,53 @@ RSpec.describe Tracing::Matchers::HaveSpans do
 
     it "fails if specific conditions are not met" do
       expect {
+        expect(tracer).to have_span.with_tags("tag", "value")
+      }.to fail_with('expected any span with  tags {"tag"=>"value"}')
+
+      expect {
         expect(tracer).to have_span.with_tags("tag" => "value")
       }.to fail_with('expected any span with  tags {"tag"=>"value"}')
 
       expect {
-        expect(tracer).to have_span.with_logs(event: "test", "field1" => "value")
+        expect(tracer).to have_span.with_log(event: "test", field1: "value")
       }.to fail_with('expected any span with logs {:event=>"test","field1"=>"value"}')
+
+      expect {
+        expect(tracer).to have_span.with_logs(event: "test", field1: "value")
+      }.to fail_with('expected any span with logs {:event=>"test","field1"=>"value"}')
+
+      expect {
+        expect(tracer).to have_span.with_baggage("baggage_item", "value")
+      }.to fail_with('expected any span with baggage {"baggage_item"=>"value"}')
 
       expect {
         expect(tracer).to have_span.with_baggage("baggage_item" => "value")
       }.to fail_with('expected any span with baggage {"baggage_item"=>"value"}')
 
       expect {
-        expect(tracer).to have_span.child_of("Root Operation Name")
-      }.to fail_with("expected any span with parent 'Root Operation Name'")
+        expect(tracer).to have_span.child_of(parent)
+      }.to fail_with('expected any span with parent "Parent Operation Name"')
     end
 
-    it "generates description for multiple conditions" do
-      expect(tracer).to have_span("Child Operation Name")
-        .finished
-        .with_tags("tag" => "value")
-        .child_of("Root Operation Name")
+    it "fails if multiple conditions are not met" do
+      fail_msg = 'expected "Child Operation Name" span finished ' +
+        'with tags {"tag"=>"value"} ' +
+        'with baggage {"baggage_item"=>"value"} ' +
+        'with parent "Parent Operation Name"'
 
-      expect(RSpec::Matchers.generated_description).to eq 'should have "Child Operation Name" span finished with tags {"tag"=>"value"} with parent "Root Operation Name"'
+      expect {
+        expect(tracer).to have_span(child)
+          .with_tag("tag", "value")
+          .with_baggage("baggage_item", "value")
+          .child_of(parent)
+          .finished
+      }.to fail_with(fail_msg)
     end
   end
 
   describe "description generation" do
     before do
-      root = tracer.start_span("Root Operation Name")
-      span = tracer.start_span("Child Operation Name", child_of: root)
-      span.set_tag("tag", "value")
-      span.set_baggage_item("baggage_item", "value")
-      span.log(event: "test", "field1" => "value")
-      span.finish
+      prepare_environment
     end
 
     it "generates description" do
@@ -138,8 +172,8 @@ RSpec.describe Tracing::Matchers::HaveSpans do
     end
 
     it "generates description with operation name" do
-      expect(tracer).to have_span("Child Operation Name")
-      expect(RSpec::Matchers.generated_description).to eq "should have 'Child Operation Name' span"
+      expect(tracer).to have_span(child)
+      expect(RSpec::Matchers.generated_description).to eq 'should have "Child Operation Name" span'
     end
 
     it "generates description with state" do
@@ -154,8 +188,14 @@ RSpec.describe Tracing::Matchers::HaveSpans do
     end
 
     it "generates description with general condition" do
+      expect(tracer).to have_span.with_tag
+      expect(RSpec::Matchers.generated_description).to eq "should have span with tags"
+
       expect(tracer).to have_span.with_tags
       expect(RSpec::Matchers.generated_description).to eq "should have span with tags"
+
+      expect(tracer).to have_span.with_log
+      expect(RSpec::Matchers.generated_description).to eq "should have span with logs"
 
       expect(tracer).to have_span.with_logs
       expect(RSpec::Matchers.generated_description).to eq "should have span with logs"
@@ -168,26 +208,41 @@ RSpec.describe Tracing::Matchers::HaveSpans do
     end
 
     it "generates description with specific condition" do
+      expect(tracer).to have_span.with_tag("tag", "value")
+      expect(RSpec::Matchers.generated_description).to eq 'should have span with tags {"tag"=>"value"}'
+
       expect(tracer).to have_span.with_tags("tag" => "value")
       expect(RSpec::Matchers.generated_description).to eq 'should have span with tags {"tag"=>"value"}'
 
-      expect(tracer).to have_span.with_logs(event: "test", "field1" => "value")
-      expect(RSpec::Matchers.generated_description).to eq 'should have span with logs {:event=>"test","field1"=>"value"}'
+      expect(tracer).to have_span.with_log(event: "test", field1: "value")
+      expect(RSpec::Matchers.generated_description).to eq 'should have span with logs {:event=>"test",:field1=>"value"}'
+
+      expect(tracer).to have_span.with_logs(event: "test", field1: "value")
+      expect(RSpec::Matchers.generated_description).to eq 'should have span with logs {:event=>"test",:field1=>"value"}'
+
+      expect(tracer).to have_span.with_baggage("baggage_item", "value")
+      expect(RSpec::Matchers.generated_description).to eq 'should have span with baggage {"baggage_item"=>"value"}'
 
       expect(tracer).to have_span.with_baggage("baggage_item" => "value")
       expect(RSpec::Matchers.generated_description).to eq 'should have span with baggage {"baggage_item"=>"value"}'
 
-      expect(tracer).to have_span.child_of("Root Operation Name")
-      expect(RSpec::Matchers.generated_description).to eq "should have 'Child Operation Name' span with parent 'Root Operation Name'"
+      expect(tracer).to have_span.child_of(parent)
+      expect(RSpec::Matchers.generated_description).to eq 'should have span with parent "Parent Operation Name"'
     end
 
     it "generates description for multiple conditions" do
-      expect(tracer).to have_span("Child Operation Name")
+      expect(tracer).to have_span(child)
+        .with_tag("tag", "value")
+        .with_baggage("baggage_item", "value")
+        .child_of(parent)
         .finished
-        .with_tags("tag" => "value")
-        .child_of("Root Operation Name")
 
-      expect(RSpec::Matchers.generated_description).to eq 'should have "Child Operation Name" span finished with tags {"tag"=>"value"} with parent "Root Operation Name"'
+      msg = 'should have "Child Operation Name" span finished ' +
+        'with tags {"tag"=>"value"} ' +
+        'with baggage {"baggage_item"=>"value"} ' +
+        'with parent "Parent Operation Name"'
+
+      expect(RSpec::Matchers.generated_description).to eq msg
     end
   end
 end

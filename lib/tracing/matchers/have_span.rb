@@ -15,15 +15,17 @@ module Tracing
         self
       end
 
-      def with_tags(**tags)
+      def with_tags(*tags)
         self
       end
+      alias :with_tag :with_tags
 
-      def with_logs(**fields)
+      def with_logs(*fields)
         self
       end
+      alias :with_log :with_logs
 
-      def with_baggage(**baggage)
+      def with_baggage(*baggage)
         self
       end
 
