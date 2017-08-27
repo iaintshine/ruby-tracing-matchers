@@ -36,6 +36,15 @@ expect(tracer).to have_span(optional operation_name)
                   .with_log(optional fields)
                   .with_baggage(optional baggage to match)
                   .child_of(operation_name or span or context)
+
+expect(span).to have_tag
+expect(span).to have_tags
+expect(span).to have_log
+expect(span).to have_logs
+expect(span).to have_baggage
+expect(span).to have_baggage_item
+expect(span).to have_parent
+expect(span).to be_child_of
 ```
 
 Detailed documentation and usage examples can be found in [matchers.rb](https://github.com/iaintshine/ruby-tracing-matchers/blob/master/lib/tracing/matchers.rb) file.
@@ -103,6 +112,12 @@ describe "traced code" do
 
     it "does include standard OT tags" do
       expect(tracer).to have_span.with_tags('component' => 'ActiveRecord')
+      expect(span).to have_tag('component', 'ActiveRecord')
+    end
+
+    it "does include a baggage item" do
+      expect(tracer).to have_span.with_baggage('user_id', '1')
+      expect(span).to have_baggage('user_id', '1')
     end
 
     it "does not have any log entries" do
@@ -113,10 +128,12 @@ describe "traced code" do
   context "when an event was logged" do
     it "does have some log entries recorded" do
       expect(tracer).to have_span.with_logs
+      expect(span).to have_log 
     end
 
     it "includes all the event attributes" do
       expect(tracer).to have_span.with_log(event: "exceptional message", severity: Logger::ERROR)
+      expect(span).to have_log(event: "exceptional message", severity: Logger::ERROR)
     end
   end
 
@@ -135,6 +152,7 @@ describe "traced code" do
   context "when a new span was started as child" do
     it "has a prent" do
       expect(tracer).to have_span("child span").child_of("root span")
+      expect(span).to be_child_of("root span")
     end
   end
 end

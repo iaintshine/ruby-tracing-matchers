@@ -1,4 +1,5 @@
 require "tracing/matchers/version"
+require "tracing/matchers/span_matchers"
 require "tracing/matchers/have_traces"
 require "tracing/matchers/have_spans"
 require "tracing/matchers/have_span"

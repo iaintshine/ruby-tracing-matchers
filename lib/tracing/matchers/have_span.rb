@@ -3,6 +3,7 @@ module Tracing
     # @private
     class HaveSpan
       def initialize(operation_name)
+        @predicates = []
       end
 
       def in_progress
