@@ -67,7 +67,7 @@ RSpec.describe Tracing::Matchers::Span::BeChildOf do
 
       expect {
         expect(span).to be_child_of(parent.context)
-      }.to fail_with('expected the span context with id "' + parent.context.span_id + '" as the parent, got a span context with id "' + different_parent.context.span_id + '"')
+      }.to fail_with('expected the span context with id "' + parent.context.span_id + '" as the parent, got a span with operation name "different parent operation"')
 
 
       parent_context = Test::SpanContext.root

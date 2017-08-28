@@ -9,25 +9,27 @@ module Tracing
 
         # @return [Boolean]
         def matches?(span)
+          @tracer = span.tracer
           @subject = span
-          # TODO: add support for context
-          @actual = parent_span(span)
+          # actual is either Span, or SpanContext
+          @actual = parent_of(@subject)
 
-          if any?
-            !!@actual
+          case
+          when any? then !!@actual
+          when @actual.nil? && @expected then false
           else
-            expected_span_ids(span.tracer).any? { |span_id| @actual.context.span_id == span_id }
+            expected_span_id == actual_span_id
           end
         end
 
         # @return [String]
         def description
-          any? ? "have a parent" : "have #{expected_message} parent"
+          any? ? "have a parent" : "have #{expected_message} as the parent"
         end
 
         # @return [String]
         def failure_message
-          any? ? "expected a parent" : "expected #{expected_message} parent, got #{actual_message}"
+          any? ? "expected a parent" : "expected #{expected_message} as the parent, got #{actual_message}"
         end
         alias :failure_message_for_should :failure_message
 
@@ -43,18 +45,30 @@ module Tracing
           @expected == :any
         end
 
-        def parent_span(span)
-          span.tracer
-            .spans
-            .find { |s| s.context.span_id == span.context.parent_span_id }
+        def parent_of(subject)
+          return nil unless subject.context.parent_span_id
+
+          parent_span = @tracer
+                          .spans
+                          .find { |span| span.context.span_id == subject.context.parent_span_id }
+
+          parent_span || subject.context
         end
 
-        def expected_span_ids(tracer)
+        def actual_span_id
           case
-          when @expected.respond_to?(:context) then [@expected.context.span_id]
-          when @expected.respond_to?(:span_id) then [@expected.span_id]
-          when @expected.is_a?(String) then expected_spans(tracer).map { |span| span.context.span_id }
-          else nil
+          when @actual.respond_to?(:context) then @actual.context.span_id
+          when @actual.respond_to?(:parent_span_id) then @actual.parent_span_id
+          else @actual
+          end
+        end
+
+        def expected_span_id
+          case
+          when @expected.respond_to?(:context) then @expected.context.span_id
+          when @expected.respond_to?(:span_id) then @expected.span_id
+          when @expected.is_a?(String) then @tracer.spans.find { |span| span.operation_name == @expected }&.context&.span_id
+          else @expected
           end
         end
 
@@ -64,16 +78,17 @@ module Tracing
 
         def expected_message
           case
-          when @expected.respond_to?(:context) then "\"#{@expected.operation_name}\""
-          when @expected.respond_to?(:span_id) then "span context with id \"#{@expected.span_id}\""
-          when @expected.is_a?(String) then "\"#{@expected}\""
+          when @expected.respond_to?(:context) then "the span with operation name \"#{@expected.operation_name}\""
+          when @expected.respond_to?(:span_id) then "the span context with id \"#{@expected.span_id}\""
+          when @expected.is_a?(String) then "a span with operation name \"#{@expected}\""
           else nil
           end
         end
 
         def actual_message
           case
-          when @actual.respond_to?(:operation_name) then "\"#{@actual.operation_name}\""
+          when @actual.respond_to?(:operation_name) then "a span with operation name \"#{@actual.operation_name}\""
+          when @actual.respond_to?(:parent_span_id) then "a span context with id \"#{@actual.parent_span_id}\""
           when @actual.nil? then "nothing"
           else @actual
           end
