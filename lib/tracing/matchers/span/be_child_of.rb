@@ -67,7 +67,9 @@ module Tracing
           case
           when @expected.respond_to?(:context) then @expected.context.span_id
           when @expected.respond_to?(:span_id) then @expected.span_id
-          when @expected.is_a?(String) then @tracer.spans.find { |span| span.operation_name == @expected }&.context&.span_id
+          when @expected.is_a?(String)
+            span = @tracer.spans.find { |span| span.operation_name == @expected }
+            span.context.span_id if span && span.context && span.context.span_id
           else @expected
           end
         end
