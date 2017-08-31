@@ -62,7 +62,7 @@ module Tracing
 
       # @return [String]
       def failure_message
-        "expected a#{expected_span_description}"
+        "expected a#{expected_span_description}, suggestions \n#{suggestions.map(&:to_s).join("\n")}"
       end
       alias :failure_message_for_should :failure_message
 
@@ -81,6 +81,10 @@ module Tracing
         desc << " with operation name \"#{@expected}\"" if operation_name?
         @predicates.each { |matcher| desc << " #{matcher.description.gsub('have', 'with')}" }
         desc
+      end
+
+      def suggestions
+        @actual.empty? ? @subject.spans : @actual
       end
 
       def actual_spans
