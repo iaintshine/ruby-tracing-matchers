@@ -36,6 +36,7 @@ expect(tracer).to have_span(optional operation_name)
                   .with_log(optional fields)
                   .with_baggage(optional baggage to match)
                   .child_of(operation_name or span or context)
+                  .following_after(operation_name or span)
 
 expect(span).to have_tag
 expect(span).to have_tags

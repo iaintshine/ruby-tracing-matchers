@@ -2,6 +2,7 @@ require "spec_helper"
 require "pry"
 
 RSpec.describe Tracing::Matchers::HaveSpans do
+  let(:previous) { "previous" }
   let(:in_progress) { "in progress" }
   let(:finished) { "finished" }
   let(:parent) { "Parent Operation Name" }
@@ -9,6 +10,7 @@ RSpec.describe Tracing::Matchers::HaveSpans do
   let(:tracer) { Test::Tracer.new }
 
   def prepare_environment
+    tracer.start_span(previous)
     tracer.start_span(in_progress)
     tracer.start_span(finished).finish
 
@@ -37,6 +39,7 @@ RSpec.describe Tracing::Matchers::HaveSpans do
       expect(tracer).to have_span.with_logs
       expect(tracer).to have_span.with_baggage
       expect(tracer).to have_span.with_parent
+      expect(tracer).to have_span.following_after(previous)
     end
 
     it "passes if named span conditions are met" do
@@ -58,6 +61,7 @@ RSpec.describe Tracing::Matchers::HaveSpans do
       expect(tracer).to have_span(child).with_baggage("baggage_item", "value")
       expect(tracer).to have_span(child).with_baggage("baggage_item" => "value")
       expect(tracer).to have_span(child).child_of(parent)
+      expect(tracer).to have_span(child).following_after(previous)
     end
 
     it "passes if multiple conditions are met" do
@@ -65,6 +69,7 @@ RSpec.describe Tracing::Matchers::HaveSpans do
         .with_tag("tag", "value")
         .with_baggage("baggage_item", "value")
         .child_of(parent)
+        .following_after(previous)
         .finished
     end
   end
@@ -144,19 +149,25 @@ RSpec.describe Tracing::Matchers::HaveSpans do
       expect {
         expect(tracer).to have_span.child_of(parent)
       }.to fail_with('expected a span with a span with operation name "Parent Operation Name" as the parent')
+
+      expect {
+        expect(tracer).to have_span.following_after(previous)
+      }.to fail_with('expected a span follow after a span with operation name "previous"')
     end
 
     it "fails if multiple conditions are not met" do
       fail_msg = 'expected a finished span with operation name "Child Operation Name" ' +
         'with tags {"tag"=>"value"} ' +
         'with baggage {"baggage_item"=>"value"} ' +
-        'with a span with operation name "Parent Operation Name" as the parent'
+        'with a span with operation name "Parent Operation Name" as the parent ' +
+        'follow after a span with operation name "previous"'
 
       expect {
         expect(tracer).to have_span(child)
           .with_tag("tag", "value")
           .with_baggage("baggage_item", "value")
           .child_of(parent)
+          .following_after(previous)
           .finished
       }.to fail_with(fail_msg)
     end
