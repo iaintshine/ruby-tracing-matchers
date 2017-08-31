@@ -78,81 +78,81 @@ RSpec.describe Tracing::Matchers::HaveSpans do
     it "fails if there are no spans at all" do
       expect {
         expect(tracer).to have_span
-      }.to fail_with("expected a span")
+      }.to fail_including("expected a span")
 
       expect {
         expect(tracer).to have_span.started
-      }.to fail_with("expected a started span")
+      }.to fail_including("expected a started span")
 
       expect {
         expect(tracer).to have_span.finished
-      }.to fail_with("expected a finished span")
+      }.to fail_including("expected a finished span")
     end
 
     it "fails if there is no span with an operation name" do
       expect {
         expect(tracer).to have_span(child)
-      }.to fail_with('expected a span with operation name "Child Operation Name"')
+      }.to fail_including('expected a span with operation name "Child Operation Name"')
     end
 
     it "fails if general conditions are not met" do
       expect {
         expect(tracer).to have_span.with_tag
-      }.to fail_with("expected a span with tags")
+      }.to fail_including("expected a span with tags")
 
       expect {
         expect(tracer).to have_span.with_tags
-      }.to fail_with("expected a span with tags")
+      }.to fail_including("expected a span with tags")
 
       expect {
         expect(tracer).to have_span.with_logs
-      }.to fail_with("expected a span with log entry")
+      }.to fail_including("expected a span with log entry")
 
       expect {
         expect(tracer).to have_span.with_logs
-      }.to fail_with("expected a span with log entry")
+      }.to fail_including("expected a span with log entry")
 
       expect {
         expect(tracer).to have_span.with_baggage
-      }.to fail_with("expected a span with baggage")
+      }.to fail_including("expected a span with baggage")
 
       expect {
         expect(tracer).to have_span.with_parent
-      }.to fail_with("expected a span with a parent")
+      }.to fail_including("expected a span with a parent")
     end
 
     it "fails if specific conditions are not met" do
       expect {
         expect(tracer).to have_span.with_tags("tag", "value")
-      }.to fail_with('expected a span with tags {"tag"=>"value"}')
+      }.to fail_including('expected a span with tags {"tag"=>"value"}')
 
       expect {
         expect(tracer).to have_span.with_tags("tag" => "value")
-      }.to fail_with('expected a span with tags {"tag"=>"value"}')
+      }.to fail_including('expected a span with tags {"tag"=>"value"}')
 
       expect {
         expect(tracer).to have_span.with_log(event: "test", field1: "value")
-      }.to fail_with('expected a span with log entry {:event=>"test", :field1=>"value"}')
+      }.to fail_including('expected a span with log entry {:event=>"test", :field1=>"value"}')
 
       expect {
         expect(tracer).to have_span.with_logs(event: "test", field1: "value")
-      }.to fail_with('expected a span with log entry {:event=>"test", :field1=>"value"}')
+      }.to fail_including('expected a span with log entry {:event=>"test", :field1=>"value"}')
 
       expect {
         expect(tracer).to have_span.with_baggage("baggage_item", "value")
-      }.to fail_with('expected a span with baggage {"baggage_item"=>"value"}')
+      }.to fail_including('expected a span with baggage {"baggage_item"=>"value"}')
 
       expect {
         expect(tracer).to have_span.with_baggage("baggage_item" => "value")
-      }.to fail_with('expected a span with baggage {"baggage_item"=>"value"}')
+      }.to fail_including('expected a span with baggage {"baggage_item"=>"value"}')
 
       expect {
         expect(tracer).to have_span.child_of(parent)
-      }.to fail_with('expected a span with a span with operation name "Parent Operation Name" as the parent')
+      }.to fail_including('expected a span with a span with operation name "Parent Operation Name" as the parent')
 
       expect {
         expect(tracer).to have_span.following_after(previous)
-      }.to fail_with('expected a span follow after a span with operation name "previous"')
+      }.to fail_including('expected a span follow after a span with operation name "previous"')
     end
 
     it "fails if multiple conditions are not met" do
@@ -169,7 +169,16 @@ RSpec.describe Tracing::Matchers::HaveSpans do
           .child_of(parent)
           .following_after(previous)
           .finished
-      }.to fail_with(fail_msg)
+      }.to fail_including(fail_msg)
+    end
+
+    it "displays possible suggestions" do
+      tracer.start_span("test")
+
+      expect {
+        expect(tracer).to have_span("not found").finished
+      }.to fail_including("suggestions",
+                         "Span(operation_name=test, in_progress=true")
     end
   end
 
