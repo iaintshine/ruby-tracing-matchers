@@ -2,6 +2,7 @@ require "tracing/matchers/span/have_tag"
 require "tracing/matchers/span/have_log"
 require "tracing/matchers/span/have_baggage"
 require "tracing/matchers/span/be_child_of"
+require "tracing/matchers/span/follow_after"
 
 module Tracing
   module Matchers
@@ -68,5 +69,18 @@ module Tracing
       Tracing::Matchers::Span::BeChildOf.new(parent)
     end
     alias :have_parent :be_child_of
+
+    # The `follow_after` matcher tests that the span follows after some other span.
+    # @example
+    #
+    #   # Passes if span follows after spcific span
+    #   expect(span).to be_child_of("previous operation")
+    #   expect(span).to be_child_of(previous_span)
+    #
+    # @param [String, Span] previous expected span to follow after
+    # @return [FollowAfter]
+    def follow_after(previous)
+      Tracing::Matchers::Span::FollowAfter.new(previous)
+    end
   end
 end
