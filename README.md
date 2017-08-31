@@ -6,7 +6,7 @@ The gem exposes RSpec-compatible convenient one-liners, matchers, which you can 
 
 ## Documentation
 
-For far more detailed documentation and usage examples check [matchers.rb](https://github.com/iaintshine/ruby-tracing-matchers/blob/master/lib/tracing/matchers.rb), [span_matchers.rb](https://github.com/iaintshine/ruby-tracing-matchers/blob/master/lib/tracing/matchers/span_matchers.rb), specs and [rubydoc.info](http://www.rubydoc.info/gems/tracing-matchers).
+For far more detailed documentation and usage examples check [matchers.rb](https://github.com/iaintshine/ruby-tracing-matchers/blob/master/lib/tracing/matchers.rb), [span_matchers.rb](https://github.com/iaintshine/ruby-tracing-matchers/blob/master/lib/tracing/matchers/span_matchers.rb), [specs](https://github.com/iaintshine/ruby-tracing-matchers/tree/master/spec/tracing) and [rubydoc.info](http://www.rubydoc.info/github/iaintshine/ruby-tracing-matchers/master/Tracing/Matchers).
 
 ## Installation
 
