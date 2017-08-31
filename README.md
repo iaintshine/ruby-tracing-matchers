@@ -45,6 +45,7 @@ expect(span).to have_baggage
 expect(span).to have_baggage_item
 expect(span).to have_parent
 expect(span).to be_child_of
+expect(span).to follow_after(String|Span)
 ```
 
 Detailed documentation and usage examples can be found in [matchers.rb](https://github.com/iaintshine/ruby-tracing-matchers/blob/master/lib/tracing/matchers.rb) file.
