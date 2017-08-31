@@ -6,7 +6,7 @@ require "tracing/matchers/span/follow_after"
 
 module Tracing
   module Matchers
-    # The `have_tag` matcher tests that the span includes tags.
+    # The have_tag matcher tests that the span includes tags.
     # @example
     #
     #   # Passes if span have any tag
@@ -22,7 +22,7 @@ module Tracing
     end
     alias :have_tags :have_tag
 
-    # The `have_log` matcher tests that the span includes a tag.
+    # The have_log matcher tests that the span includes a tag.
     # @example
     #
     #   # Passes if span have any log
@@ -37,7 +37,7 @@ module Tracing
     end
     alias :have_logs :have_log
 
-    # The `have_baggage` matcher tests that the span/span context includes baggage.
+    # The have_baggage matcher tests that the span/span context includes baggage.
     # @example
     #
     #   # Passes if span have any baggage item
@@ -53,7 +53,7 @@ module Tracing
     end
     alias :have_baggage_item :have_baggage
 
-    # The `be_child_of` matcher tests that the span/span context is a child of some other span/span context.
+    # The be_child_of matcher tests that the span/span context is a child of some other span/span context.
     # @example
     #
     #   # Passes if span is a child of any span
@@ -64,13 +64,14 @@ module Tracing
     #   expect(span).to be_child_of(parent_span)
     #   expect(span).to be_child_of(parent_span_context)
     #
+    # @param [String, Span, SpanContext] parent
     # @return [HaveBaggage]
     def be_child_of(parent = :any)
       Tracing::Matchers::Span::BeChildOf.new(parent)
     end
     alias :have_parent :be_child_of
 
-    # The `follow_after` matcher tests that the span follows after some other span.
+    # The follow_after matcher tests that the span follows after some other span.
     # @example
     #
     #   # Passes if span follows after spcific span

@@ -1,6 +1,12 @@
+[![Build Status](https://travis-ci.org/iaintshine/ruby-tracing-matchers.svg?branch=master)](https://travis-ci.org/iaintshine/ruby-tracing-matchers)
+
 # Tracing::Matchers
 
 The gem exposes RSpec-compatible convenient one-liners, matchers, which you can use to test OpenTracing instrumentations, without having to use production OpenTracing Tracer e.g. Jaeger. It's expected that the gem will be used together with [test-tracer](https://github.com/iaintshine/ruby-test-tracer) - an OpenTracing compatible test Tracer implementation.
+
+## Documentation
+
+For far more detailed documentation and usage examples check [matchers.rb](https://github.com/iaintshine/ruby-tracing-matchers/blob/master/lib/tracing/matchers.rb), [span_matchers.rb](https://github.com/iaintshine/ruby-tracing-matchers/blob/master/lib/tracing/matchers/span_matchers.rb), specs and [rubydoc.info](http://www.rubydoc.info/gems/tracing-matchers).
 
 ## Installation
 
@@ -27,29 +33,27 @@ expect(tracer).to have_traces(n)
 expect(tracer).to have_spans(n)
                   .started
                   .finished
-expect(tracer).to have_span(optional operation_name)
+expect(tracer).to have_span(operation_name)
                   .in_progress
-                  .started # alias for #in_progress
+                  .started
                   .finished
-                  .with_tags(optional hash of tags)
-                  .with_logs
-                  .with_log(optional fields)
-                  .with_baggage(optional baggage to match)
-                  .child_of(operation_name or span or context)
-                  .following_after(operation_name or span)
+                  .with_tags(*tags)
+                  .with_logs(**fields)
+                  .with_log(**fields)
+                  .with_baggage(*baggage)
+                  .child_of(operation_name|span|span_context)
+                  .following_after(operation_name|span)
 
-expect(span).to have_tag
-expect(span).to have_tags
-expect(span).to have_log
-expect(span).to have_logs
-expect(span).to have_baggage
-expect(span).to have_baggage_item
+expect(span).to have_tag(*tags)
+expect(span).to have_tags(*tags)
+expect(span).to have_log(**fields)
+expect(span).to have_logs(**fields)
+expect(span).to have_baggage(*baggage)
+expect(span).to have_baggage_item(*baggage)
 expect(span).to have_parent
-expect(span).to be_child_of
-expect(span).to follow_after(String|Span)
+expect(span).to be_child_of(opration_name|span|span_context)
+expect(span).to follow_after(operation_name|span)
 ```
-
-Detailed documentation and usage examples can be found in [matchers.rb](https://github.com/iaintshine/ruby-tracing-matchers/blob/master/lib/tracing/matchers.rb) file.
 
 ## Usage
 

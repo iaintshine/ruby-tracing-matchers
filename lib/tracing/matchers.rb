@@ -6,7 +6,7 @@ require "tracing/matchers/have_span"
 
 module Tracing
   module Matchers
-    # The `have_traces` matcher tests that the tracer traced any or a specific
+    # The have_traces matcher tests that the tracer traced any or a specific
     # number of **traces**.
     #
     # @example
@@ -36,7 +36,7 @@ module Tracing
       Tracing::Matchers::HaveTraces.new(n)
     end
 
-    # The `have_spans` matcher tests that the tracer traced any or a specific
+    # The have_spans matcher tests that the tracer traced any or a specific
     # number of **spans**.
     #
     # @example
@@ -66,7 +66,7 @@ module Tracing
       Tracing::Matchers::HaveSpans.new(n)
     end
 
-    # The `have_span` matcher tests that the tracer traced a span matching a criteria.
+    # The have_span matcher tests that the tracer traced a span matching a criteria.
     #
     # @example
     #
