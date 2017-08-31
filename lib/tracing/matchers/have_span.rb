@@ -41,6 +41,12 @@ module Tracing
       end
       alias :with_parent :child_of
 
+      def follow_after(previous)
+        @predicates << Tracing::Matchers::Span::FollowAfter.new(previous)
+        self
+      end
+      alias :following_after :follow_after
+
       # @return [Boolean]
       def matches?(tracer)
         @subject = tracer
