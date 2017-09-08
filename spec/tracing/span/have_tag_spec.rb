@@ -16,6 +16,11 @@ RSpec.describe Tracing::Matchers::Span::HaveTag do
       expect(span).to have_tag("tag", "value")
       expect(span).to have_tag("tag" => "value")
     end
+
+    it "passes if 'matches' tag" do
+      expect(span).to have_tag("tag", /value/)
+      expect(span).to have_tag("tag" => /value/)
+    end
   end
 
   describe "failure cases" do
@@ -41,6 +46,13 @@ RSpec.describe Tracing::Matchers::Span::HaveTag do
       expect {
         expect(span).to have_tag("tag1", "value2")
       }.to fail_with('expected {"tag1"=>"value2"} tags, got {"tag1"=>"value1"}')
+    end
+
+    it "fails if expected tag got different value and doesn't match regex" do
+      span.set_tag("tag1", "invalid1")
+      expect {
+        expect(span).to have_tag("tag1", /value/)
+      }.to fail_with('expected {"tag1"=>/value/} tags, got {"tag1"=>"invalid1"}')
     end
   end
 

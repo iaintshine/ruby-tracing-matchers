@@ -16,6 +16,11 @@ RSpec.describe Tracing::Matchers::Span::HaveBaggage do
       expect(span).to have_baggage("tag", "value")
       expect(span).to have_baggage("tag" => "value")
     end
+
+    it "passes if 'matches' a baggage item" do
+      expect(span).to have_baggage("tag", /value/)
+      expect(span).to have_baggage("tag" => /value/)
+    end
   end
 
   describe "failure cases" do
@@ -41,6 +46,13 @@ RSpec.describe Tracing::Matchers::Span::HaveBaggage do
       expect {
         expect(span).to have_baggage("tag1", "value2")
       }.to fail_with('expected {"tag1"=>"value2"} baggage, got {"tag1"=>"value1"}')
+    end
+
+    it "fails if expected baggage item got different value, and doesn't match regex" do
+      span.set_baggage_item("tag1", "invalid1")
+      expect {
+        expect(span).to have_baggage("tag1", /value/)
+      }.to fail_with('expected {"tag1"=>/value/} baggage, got {"tag1"=>"invalid1"}')
     end
   end
 

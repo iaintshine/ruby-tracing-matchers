@@ -18,6 +18,7 @@ RSpec.describe Tracing::Matchers::Span::HaveLog do
       expect(span).to have_log(event: "error")
       expect(span).to have_log(message: "error message")
       expect(span).to have_log(event: "error", message: "error message")
+      expect(span).to have_log(event: "error", message: /message/)
     end
   end
 
@@ -37,6 +38,10 @@ RSpec.describe Tracing::Matchers::Span::HaveLog do
       expect {
         expect(span).to have_log(event: "error")
       }.to fail_with('expected {:event=>"error"} log entry, got [{:event=>"warning"}]')
+
+      expect {
+        expect(span).to have_log(message: /description/)
+      }.to fail_with('expected {:message=>/description/} log entry, got [{:event=>"warning"}]')
     end
   end
 
