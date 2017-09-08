@@ -1,6 +1,5 @@
 require "bundler/setup"
-require "test/tracer"
-require "tracing/matchers"
+require "tracing-matchers"
 
 Dir['./spec/support/**/*'].each { |f| require f }
 

@@ -60,6 +60,8 @@ expect(span).to follow_after(operation_name|span)
 High-level test examples.
 
 ```ruby
+require 'tracing-matchers'
+
 describe "traced code" do
   context "when we expect no traces" do
     it "does not have any traces" do
