@@ -15,6 +15,7 @@ module Tracing
     #   # Passes if span includes a tag with "tag" key, and "value" value
     #   expect(span).to have_tag("key", "value")
     #   expect(span).to have_tag("key" => "value")
+    #   expect(span).to have_tag("key", /value/)
     #
     # @return [HaveTag]
     def have_tag(*args)
@@ -30,6 +31,7 @@ module Tracing
     #
     #   # Passes if span includes a log entry with event: "error"
     #   expect(span).to have_log(event: "error")
+    #   expect(span).to have_log(message: /description/)
     #
     # @return [HaveTag]
     def have_log(**fields)
@@ -46,6 +48,7 @@ module Tracing
     #   # Passes if span includes a baggage item with "tag" key, and "value" value
     #   expect(span).to have_baggage("key", "value")
     #   expect(span).to have_baggage("key" => "value")
+    #   expect(span).to have_baggage("key", /value/)
     #
     # @return [HaveBaggage]
     def have_baggage(*args)

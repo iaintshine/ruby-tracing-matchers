@@ -16,7 +16,7 @@ module Tracing
           if any?
             @actual.any?
           else
-            @expected.all? { |k, v| @actual.key?(k) && v == @actual[k] }
+            @expected.all? { |k, v| @actual.key?(k) && values_match?(v, @actual[k]) }
           end
         end
 
@@ -43,6 +43,10 @@ module Tracing
 
         def any?
           @expected.empty?
+        end
+
+        def values_match?(expected, actual)
+          expected.is_a?(Regexp) ? expected.match(actual) : expected == actual
         end
       end
     end
